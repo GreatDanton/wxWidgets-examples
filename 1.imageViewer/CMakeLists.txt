@@ -11,7 +11,7 @@ set (SRC_FILES
         src/main.cpp
         src/scrolledwindow.cpp
         src/scrolledimage.cpp
-        src/mainframe.cpp
+        src/application.cpp
      )
 
 # create executable

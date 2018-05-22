@@ -1,17 +1,17 @@
-#ifndef MAINFRAME_H
-#define MAINFRAME_H
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
 #include "scrolledwindow.h"
 #include <wx/wx.h>
 
-class MainFrame : public wxFrame
+class Application : public wxFrame
 {
   public:
     /**
      * Class constructor of the main application window
      * @param title of the application window
      */
-    MainFrame(const wxString &title);
+    Application(const wxString &title);
 
   private:
     // main application window that scrolls if the window is too small for content
@@ -30,4 +30,4 @@ class MainFrame : public wxFrame
     void quit(wxCommandEvent &event);
 };
 
-#endif // MAINFRAME_H
+#endif // APPLICATION_H

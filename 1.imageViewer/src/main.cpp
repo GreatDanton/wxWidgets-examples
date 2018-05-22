@@ -1,12 +1,12 @@
 #include "main.h"
-#include "mainframe.h"
+#include "application.h"
 
 IMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit()
 {
-    MainFrame *mf = new MainFrame(wxT("Simple Image Viewer"));
-    mf->Show(true);
+    Application *app = new Application(wxT("Simple Image Viewer"));
+    app->Show(true);
 
     return true;
 }
