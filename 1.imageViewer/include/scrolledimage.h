@@ -25,6 +25,32 @@ class ScrolledImage : public wxScrolled<wxPanel>
 
   private:
     wxStaticBitmap *m_imgPlaceholder;
+
+    /**
+     * On mouse left click handler
+     * @param event
+     */
+    void mouseClick(wxMouseEvent &event);
+
+    /**
+     * On mouse left click release handler
+     * @param event
+     */
+    void mouseRelease(wxMouseEvent &event);
+
+    /**
+     * On mouse move handler
+     * @param event
+     */
+    void mouseMove(wxMouseEvent &event);
+
+    // capture mouse drag
+    bool m_mouseDrag = false;
+    // storing cursor positions so we can calculate the image drag (dx, dy)
+    // old cursor position
+    wxSize m_oldCursorPos;
+    // new cursor position
+    wxSize m_newCursorPos;
 };
 
 #endif // SCROLLEDIMAGE_H
