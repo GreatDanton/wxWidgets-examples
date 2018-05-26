@@ -33,7 +33,7 @@ void ScrolledWindow::set_leftPanel(wxPanel *leftPanel)
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
 
     m_scrolledImage = new ScrolledImage(leftPanel);
-    // set minimum height of the image box
+    // set minimum height of the image box, width is limited by width of its container
     m_scrolledImage->SetMinSize(wxSize(-1, 300));
 
     wxButton *btn = new wxButton(leftPanel, -1, wxT("Button on left panel"));

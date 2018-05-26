@@ -24,33 +24,69 @@ class ScrolledImage : public wxScrolled<wxPanel>
     void setImage(std::shared_ptr<wxBitmap> image);
 
   private:
-    wxStaticBitmap *m_imgPlaceholder;
-
     /**
-     * On mouse left click handler
-     * @param event
+     * Starts the image drag event.
+     * @param event - left mouse click
      */
     void mouseClick(wxMouseEvent &event);
 
     /**
-     * On mouse left click release handler
+     * Stops the dragging event. Once the mouse button is released the custom drag event stops and
+     * the image is no scrolling in cursor direction.
      * @param event
      */
     void mouseRelease(wxMouseEvent &event);
 
     /**
-     * On mouse move handler
+     * Handles the mouse move event. If the user is holding the left mouse button (dragging), image
+     * is moving into the same direction as the mouse cursor.
      * @param event
      */
     void mouseMove(wxMouseEvent &event);
 
-    // capture mouse drag
+    /**
+     * Handles user scrollbar click events.
+     * @param event
+     */
+    void thumbtrackScroll(wxScrollWinEvent &event);
+
+    /**
+     * Handles user mouse scroll event. Image is moving in the direction of the mouse scroll wheel
+     * @param event
+     */
+    void mouseWheelScroll(wxMouseEvent &event);
+
+    /**
+     * Handles user keypress event. If the image window is focused the user can move the image with
+     * cursor keys.
+     * @param event
+     */
+    void keypressScroll(wxKeyEvent &event);
+
+    /**
+     * Scroll helper method that ensures you can't scroll past the scrolled window boundaries.
+     */
+    void smoothScroll();
+
+    // -------------------------------------------------------------------------------------------
+    // Member variables
+    //--------------------------------------------------------------------------------------------
+
+    // image container/placeholder
+    wxStaticBitmap *m_imgPlaceholder;
+
+    // captures the mouse drag state
     bool m_mouseDrag = false;
-    // storing cursor positions so we can calculate the image drag (dx, dy)
-    // old cursor position
-    wxSize m_oldCursorPos;
-    // new cursor position
-    wxSize m_newCursorPos;
+
+    // storing new cursor position to calculate the mouse drag (dx, dy)
+    wxSize m_newCursorPos{0, 0};
+
+    // pixels representing amount of image scroll in x,y direction, this number changes depending on
+    // component size
+    wxSize m_currentScroll{0, 0};
+
+    // defines how much pixels represents each scrollbar unit {x, y}
+    wxSize m_pxPerUnit{1, 1};
 };
 
 #endif // SCROLLEDIMAGE_H
