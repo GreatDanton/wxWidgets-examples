@@ -121,6 +121,12 @@ void ScrolledImage::thumbtrackScroll(wxScrollWinEvent &event)
 
 void ScrolledImage::mouseWheelScroll(wxMouseEvent &event)
 {
+    // check if image exists
+    if (m_image == nullptr)
+    {
+        return;
+    }
+
     // normal scrolling, scrolling vertically
     if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
     {
@@ -132,41 +138,6 @@ void ScrolledImage::mouseWheelScroll(wxMouseEvent &event)
     }
 
     this->smoothScroll();
-}
-
-void ScrolledImage::imageZoom(wxMouseEvent &event)
-{
-    int increaseZoom = 10;
-    if (event.GetWheelRotation() < 0) // scrolling up == zoom, scrolling down == -zoom
-    {
-        increaseZoom = -increaseZoom;
-    }
-
-    // once we move past 20% of original image size, we are decreasing zoom for half of intial step
-    if (m_zoom < 20)
-    {
-        increaseZoom = increaseZoom / 2;
-    }
-
-    m_zoom += increaseZoom;
-
-    // 5% zoom is maximum at the moment
-    if (m_zoom <= 5)
-    {
-        m_zoom = 5;
-    }
-
-    int newHeight = static_cast<int>(round(m_image->GetHeight() * m_zoom / 100));
-    int newWidth = static_cast<int>(round(m_image->GetWidth() * m_zoom / 100));
-
-    if (newHeight > 0 && newWidth > 0)
-    {
-        wxImage img = m_image->Scale(newWidth, newHeight, wxIMAGE_QUALITY_HIGH);
-        wxBitmap bmp = wxBitmap(img);
-        m_imgPlaceholder->SetBitmap(bmp);
-        this->SetVirtualSize(newWidth, newHeight);
-        // TODO: zoom should follow mouse cursor
-    }
 }
 
 void ScrolledImage::mouseVerticalScroll(wxMouseEvent &event)
@@ -201,6 +172,46 @@ void ScrolledImage::mouseHorizontalScroll(wxMouseEvent &event)
     m_currentScroll.x += amount;
 }
 
+void ScrolledImage::imageZoom(wxMouseEvent &event)
+{
+    if (m_image == nullptr)
+    {
+        return;
+    }
+
+    int increaseZoom = 10;
+    if (event.GetWheelRotation() < 0) // scrolling up == zoom, scrolling down == -zoom
+    {
+        increaseZoom = -increaseZoom;
+    }
+
+    // once we move past 20% of original image size, we are decreasing zoom for half of intial step
+    if (m_zoom < 20)
+    {
+        increaseZoom = increaseZoom / 2;
+    }
+
+    m_zoom += increaseZoom;
+
+    // 5% zoom is maximum at the moment
+    if (m_zoom <= 5)
+    {
+        m_zoom = 5;
+    }
+
+    int newHeight = static_cast<int>(round(m_image->GetHeight() * m_zoom / 100));
+    int newWidth = static_cast<int>(round(m_image->GetWidth() * m_zoom / 100));
+
+    if (newHeight > 0 && newWidth > 0)
+    {
+        wxImage img = m_image->Scale(newWidth, newHeight, wxIMAGE_QUALITY_HIGH);
+        wxBitmap bmp = wxBitmap(img);
+        m_imgPlaceholder->SetBitmap(bmp);
+        this->SetVirtualSize(newWidth, newHeight);
+        // TODO: zoom should follow mouse cursor
+    }
+}
+
 void ScrolledImage::keypressScroll(wxKeyEvent &event)
 {
     switch (event.GetKeyCode())
@@ -223,6 +234,12 @@ void ScrolledImage::keypressScroll(wxKeyEvent &event)
 
 void ScrolledImage::smoothScroll()
 {
+    // check if image was loaded
+    if (m_image == nullptr)
+    {
+        return;
+    }
+
     wxSize imgSize = m_imgPlaceholder->GetBitmap().GetSize();
     // set viewport scroll boundaries
     int maxScrollX = imgSize.GetX() - this->GetClientSize().GetX();
