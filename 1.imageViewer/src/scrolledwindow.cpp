@@ -23,7 +23,7 @@ ScrolledWindow::ScrolledWindow(wxWindow *parent) : wxScrolledWindow(parent, -1)
     this->SetScrollRate(20, 20);
 }
 
-void ScrolledWindow::setImage(std::shared_ptr<wxBitmap> image)
+void ScrolledWindow::setImage(std::shared_ptr<wxImage> image)
 {
     m_scrolledImage->setImage(image);
 }

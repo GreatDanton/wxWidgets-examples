@@ -8,9 +8,9 @@ ScrolledImage::ScrolledImage(wxPanel *parent) : wxScrolled<wxPanel>(parent, -1)
     m_imgPlaceholder =
         new wxStaticBitmap(this, -1, wxNullBitmap, wxDefaultPosition, wxSize(-1, -1));
 
-    // TODO: remove this, currently loads image on start up for testing purposes
-    wxBitmap m_bmp = wxBitmap(wxT("testImage.png"), wxBITMAP_TYPE_ANY);
-    m_imgPlaceholder->SetBitmap(m_bmp);
+    // TODO: remove this later, currently loads image on start up for testing purposes
+    // m_image = std::make_shared<wxImage>(wxImage(wxT("testImage.png"), wxBITMAP_TYPE_ANY));
+    // this->setImage(m_image);
 
     panelSizer->Add(m_imgPlaceholder, 1);
     this->SetSizer(panelSizer);
@@ -51,12 +51,13 @@ ScrolledImage::ScrolledImage(wxPanel *parent) : wxScrolled<wxPanel>(parent, -1)
     this->Bind(wxEVT_KEY_DOWN, &ScrolledImage::keypressScroll, this);
 }
 
-void ScrolledImage::setImage(std::shared_ptr<wxBitmap> image)
+void ScrolledImage::setImage(std::shared_ptr<wxImage> image)
 {
     if (image != nullptr)
     {
-        m_imgPlaceholder->SetBitmap(*image);
-        // makes the scrollbars visible if the image is larger than its container
+        m_image = image;
+        wxBitmap bmp(*m_image, wxBITMAP_SCREEN_DEPTH);
+        m_imgPlaceholder->SetBitmap(bmp);
         this->SetVirtualSize(image->GetSize());
     }
 }
@@ -120,8 +121,67 @@ void ScrolledImage::thumbtrackScroll(wxScrollWinEvent &event)
 
 void ScrolledImage::mouseWheelScroll(wxMouseEvent &event)
 {
+    // normal scrolling, scrolling vertically
     if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
     {
+        this->mouseVerticalScroll(event);
+    }
+    else
+    { // scrolling horizontaly (if horizontal scrollbar is in focus)
+        this->mouseHorizontalScroll(event);
+    }
+
+    this->smoothScroll();
+}
+
+void ScrolledImage::imageZoom(wxMouseEvent &event)
+{
+    int increaseZoom = 10;
+    if (event.GetWheelRotation() < 0) // scrolling up == zoom, scrolling down == -zoom
+    {
+        increaseZoom = -increaseZoom;
+    }
+
+    // once we move past 20% of original image size, we are decreasing zoom for half of intial step
+    if (m_zoom < 20)
+    {
+        increaseZoom = increaseZoom / 2;
+    }
+
+    m_zoom += increaseZoom;
+
+    // 5% zoom is maximum at the moment
+    if (m_zoom <= 5)
+    {
+        m_zoom = 5;
+    }
+
+    int newHeight = static_cast<int>(round(m_image->GetHeight() * m_zoom / 100));
+    int newWidth = static_cast<int>(round(m_image->GetWidth() * m_zoom / 100));
+
+    if (newHeight > 0 && newWidth > 0)
+    {
+        wxImage img = m_image->Scale(newWidth, newHeight, wxIMAGE_QUALITY_HIGH);
+        wxBitmap bmp = wxBitmap(img);
+        m_imgPlaceholder->SetBitmap(bmp);
+        this->SetVirtualSize(newWidth, newHeight);
+        // TODO: zoom should follow mouse cursor
+    }
+}
+
+void ScrolledImage::mouseVerticalScroll(wxMouseEvent &event)
+{
+    // start scrolling horizontally if shift is pressed
+    if (wxGetKeyState(WXK_SHIFT))
+    {
+        this->mouseHorizontalScroll(event);
+    }
+    else if (wxGetKeyState(WXK_CONTROL))
+    { // zoom image if control is pressed
+        this->imageZoom(event);
+    }
+    else
+    { // vertical scroll
         int amount = m_pxPerUnit.y * 3;
         if (event.GetWheelRotation() > 0)
         {
@@ -129,17 +189,16 @@ void ScrolledImage::mouseWheelScroll(wxMouseEvent &event)
         }
         m_currentScroll.y += amount;
     }
-    else
-    { // scrolling horizontaly (if horizontal scrollbar is in focus)
-        int amount = m_pxPerUnit.x * 3;
-        if (event.GetWheelRotation() < 0)
-        {
-            amount = -amount;
-        }
-        m_currentScroll.x += amount;
-    }
+}
 
-    this->smoothScroll();
+void ScrolledImage::mouseHorizontalScroll(wxMouseEvent &event)
+{
+    int amount = m_pxPerUnit.x * 3;
+    if (event.GetWheelRotation() > 0)
+    {
+        amount = -amount;
+    }
+    m_currentScroll.x += amount;
 }
 
 void ScrolledImage::keypressScroll(wxKeyEvent &event)

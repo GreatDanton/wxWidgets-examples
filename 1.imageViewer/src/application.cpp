@@ -17,12 +17,17 @@ Application::Application(const wxString &title)
     file->Append(close);
 
     // file/open command
-    Connect(open->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Application::fileOpen));
+    Connect(open->GetId(), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(Application::fileOpen));
     // file/quit command
     Connect(close->GetId(), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Application::quit));
 
     menubar->Append(file, wxT("&File"));
     SetMenuBar(menubar);
+
+    // ensures we handle every possible image format. Without this initializer the application will
+    // crash on any image load
+    wxInitAllImageHandlers();
 
     // MAIN FRAME: display main application window
     m_mainWindow = new ScrolledWindow(this);
@@ -40,9 +45,8 @@ void Application::fileOpen(wxCommandEvent &WXUNUSED(event))
     {
         wxString filePath = dialog.GetPath();
         // load image
-        std::shared_ptr<wxBitmap> opened_image = std::make_shared<wxBitmap>();
+        std::shared_ptr<wxImage> opened_image = std::make_shared<wxImage>();
         opened_image->LoadFile(filePath, wxBITMAP_TYPE_ANY);
-        // display image in the placeholder
         m_mainWindow->setImage(opened_image);
     }
     else

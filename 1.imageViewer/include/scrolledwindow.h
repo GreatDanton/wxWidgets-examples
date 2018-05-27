@@ -20,9 +20,9 @@ class ScrolledWindow : public wxScrolledWindow
 
     /**
      * Set image of the image placeholder in the main application window
-     * @param image - pointer to bitmap image
+     * @param image - pointer to wxImage instance
      */
-    void setImage(std::shared_ptr<wxBitmap> image);
+    void setImage(std::shared_ptr<wxImage> image);
 
   private:
     /**
