@@ -16,7 +16,7 @@ class ScrolledWindow : public wxScrolledWindow
      * Class constructor that sets up the layout of the application main frame
      * @param parent window
      */
-    ScrolledWindow(wxWindow *parent);
+    ScrolledWindow(wxFrame *parent);
 
     /**
      * Set image of the image placeholder in the main application window
@@ -25,24 +25,8 @@ class ScrolledWindow : public wxScrolledWindow
     void setImage(std::shared_ptr<wxImage> image);
 
   private:
-    /**
-     * Create layout of the left panel in the main application frame
-     * @param leftPanel
-     */
-    void set_leftPanel(wxPanel *leftPanel);
-
-    /**
-     * An example of button click event handler
-     * @param event button click event
-     */
-    void btnClicked(wxCommandEvent &event);
-
     // placeholder for the image
     ScrolledImage *m_scrolledImage;
-    // left half of the app frame
-    wxPanel *m_left;
-    // right half of the app frame
-    wxPanel *m_right;
 };
 
 #endif // SCROLLEDWINDOW_H

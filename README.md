@@ -13,4 +13,14 @@ Let's change that and show some examples of how powerful wxWidgets really is.
 Using Global Dark Theme on Gnome3 DE, my demo app integrates nicely using
 GTK+3 out of the box.
 
-![Simple image viewer](./screenshots/1.simpleImageViewer.png)
+![Simple image viewer](./screenshots/1.imageViewer.png)
+
+The following features were implemented:
+* Zoom (mouse wheel)
+* Changing images via next/previous buttons
+
+TODO:
+
+* Simple MS Paint like functionality (adding text, arrows on the image)
+
+* Improve zoom in performance
