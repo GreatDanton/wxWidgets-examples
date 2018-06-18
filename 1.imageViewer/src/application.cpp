@@ -104,56 +104,43 @@ void Application::createToolbar()
 
 void Application::showPrevImage(wxCommandEvent &WXUNUSED(event))
 {
-    // if the filenames do not exist, load image filenames from the current directory into memory
-    if (m_imageFilenames == nullptr)
-    {
-        // cwd in this case is working directory from which this software was started
-        wxString cwd = wxGetCwd();
-        findImagesInDir(cwd);
-    }
-
     // early return if only one image present in directory
-    if (m_imageFilenames->size() <= 1)
+    if (m_imageFilenames.size() <= 1)
     {
         return;
     }
 
-    m_imageIterator--;
     // if we are viewing first image in directory, rotate around and display the last image in the
     // directory
-    if (m_imageIterator < 0)
+    if (m_imageIterator == 0)
     {
-        // set iterator to last array position
-        m_imageIterator = static_cast<int64_t>(m_imageFilenames->size() - 1);
+        m_imageIterator = m_imageFilenames.size() - 1; // set iterator to last array position
+    }
+    else
+    {
+        m_imageIterator--;
     }
 
-    wxString &imageName = m_imageFilenames->at(m_imageIterator);
+    wxString &imageName = m_imageFilenames.at(m_imageIterator);
     this->loadImage(imageName);
 }
 
 void Application::showNextImage(wxCommandEvent &WXUNUSED(event))
 {
-    // check if image filenames exists
-    if (m_imageFilenames == nullptr)
-    {
-        wxString cwd = wxGetCwd();
-        findImagesInDir(cwd);
-    }
-
     // early return if only one image is present in directory
-    if (m_imageFilenames->size() <= 1)
+    if (m_imageFilenames.size() <= 1)
     {
         return;
     }
 
     m_imageIterator++;
 
-    if (m_imageIterator >= static_cast<int64_t>(m_imageFilenames->size()))
+    if (m_imageIterator >= m_imageFilenames.size())
     {
         m_imageIterator = 0;
     }
 
-    wxString &imageName = m_imageFilenames->at(m_imageIterator);
+    wxString &imageName = m_imageFilenames.at(m_imageIterator);
     this->loadImage(imageName);
 }
 
@@ -166,12 +153,12 @@ void Application::findImagesInDir(wxString &directory, wxString &imageName)
         return;
     }
 
+    m_imageFilenames.clear();
     wxString filename;
-    std::vector<wxString> filenames;
     const wxString &currentDir = wxGetCwd();
     bool cont = dir.GetFirst(&filename, wxEmptyString, wxDIR_FILES);
 
-    int64_t i = 0;
+    size_t i = 0;
     while (cont)
     {
         wxFileName fname(currentDir, filename);
@@ -182,7 +169,9 @@ void Application::findImagesInDir(wxString &directory, wxString &imageName)
             ending == wxT("bmp"))
         {
             // store absolute path to the image
-            filenames.push_back(dir.GetNameWithSep() + filename);
+            // TODO: filenames could be stored with a separate absolute directory path. This way we
+            // can lower memory consumption
+            m_imageFilenames.push_back(dir.GetNameWithSep() + filename);
 
             // If image with certain filename is opened we have to set the correct image array
             // iterator here. Without this check here, clicking on next/prev buttons will start
@@ -198,8 +187,6 @@ void Application::findImagesInDir(wxString &directory, wxString &imageName)
         cont = dir.GetNext(&filename);
         i++;
     }
-
-    m_imageFilenames = std::make_shared<std::vector<wxString>>(filenames);
 }
 
 void Application::findImagesInDir(wxString &filepath)

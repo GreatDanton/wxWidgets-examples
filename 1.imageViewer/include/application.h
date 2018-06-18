@@ -71,10 +71,10 @@ class Application : public wxFrame
     void quit(wxCommandEvent &event);
 
     // holds array of image absolute paths
-    std::shared_ptr<std::vector<wxString>> m_imageFilenames;
+    std::vector<wxString> m_imageFilenames;
 
     // holding position of the current image in the array of image filenames
-    int64_t m_imageIterator = 0;
+    size_t m_imageIterator = 0;
 };
 
 #endif // APPLICATION_H
